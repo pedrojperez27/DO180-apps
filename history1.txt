@@ -587,3 +587,9 @@
   587  lab multicontainer-application finihs
   588  lab multicontainer-application finish
   589  history > /home/student/DO180-apps/history1.txt
+  590  oc port-forward mysql 3306:3306
+  591  oc expose service todoapi
+  592  oc status | grep -o "http:.*com"
+  593  curl -w "\n" $(oc status | grep -o "http:.*com")/todo/api/items/1
+  594  lab multicontainer-openshift finish 
+  595  history > /home/student/DO180-apps/history1.txt

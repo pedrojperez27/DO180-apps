@@ -515,3 +515,29 @@
   515  mysql -uuser1 -pmypa55 --protocol tcp -h localhost -P3306 items <db.sql 
   516  history > /home/student/DO180-apps/history1.txt
   517  history > /home/student/DO180-apps/history2.txt
+  518  cd /home/student/DO180
+  519  ls
+  520  cd..
+  521  cd ..
+  522  cd DO180-apps/
+  523  ls -lh
+  524  git add his*
+  525  git commit -m "añadir history"
+  526  git commit 
+  527  git push
+  528  oc get templates -n openshift
+  529  oc get template mysql-persistent -n openshift -o yaml
+  530  oc describe template mysql-persistent -n openshift
+  531  oc process --parameters mysql-persistent -n openshift
+  532  lab multicontainer-openshift start 
+  533  source /usr/local/etc/ocp4.config 
+  534  oc login -u ${RHT_OCP4_DEV_USER} -p ${RHT_OCP4_DEV_PASSWORD} ${RHT_OCP4_MASTER_API}
+  535  oc new-project ${RHT_OCP4_DEV_USER}-template
+  536  cd..
+  537  cd ..
+  538  cd DO180/labs/multicontainer-openshift/
+  539  cat todo-template.json 
+  540  oc process -f todo-template.json | oc create -f -
+  541  oc get pods -w
+  542  mysql -uuser1 -pmypa55 --protocol tcp -h localhost -P3306 items <db.sql 
+  543  history > /home/student/DO180-apps/history2.txt
