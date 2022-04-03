@@ -1,0 +1,76 @@
+podman ps --format="{{.ID}} {{.Names}} {{.Status}}"
+podman ps --format="{{.ID}} {{.Names}} {{.Ports}}"
+
+podman run --name persist-db -d -v /home/student/local/mysql:/var/lib/mysql/data -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 registry.redhat.io/rhel8/mysql-80:1
+
+
+podman run --name mysqldb-port -d -v /home/student/local/mysql:/var/lib/mysql/data -p 13306:3306 -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 registry.redhat.io/rhel8/mysql-80:1
+
+sudo semanage fcontext -a -t container_file_t '/home/student/local/mysql(/.*)?'
+sudo restorecon -R /home/student/local/mysql
+ls -ldZ /home/student/local/mysql
+podman unshare chown 27:27 /home/student/local/mysql
+
+podman run --name mysql-1 -d -v /home/student/local/mysql:/var/lib/mysql/data -p 13306:3306 -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 registry.redhat.io/rhel8/mysql-80:1
+
+ mysql -uuser1 -h 127.0.0.1 -pmypa55 -P13306 items < /home/student/DO180/labs/manage-review/db.sql
+
+[student@workstation ~]$ source /usr/local/etc/ocp4.config 
+[student@workstation ~]$ cat /usr/local/etc/ocp4.config 
+RHT_OCP4_MASTER_API=https://api.eu410.prod.nextcle.com:6443
+RHT_OCP4_WILDCARD_DOMAIN=apps.eu410.prod.nextcle.com
+RHT_OCP4_NEXUS_SERVER=nexus-common.apps.eu410.prod.nextcle.com
+RHT_OCP4_DEV_USER=cgfmil
+RHT_OCP4_DEV_PASSWORD=20002e9b5c914e629444
+RHT_OCP4_GITHUB_USER=pedrojperez27
+RHT_OCP4_QUAY_USER=pedro_jose_perez_sanchez
+
+
+oc login -u ${RHT_OCP4_DEV_USER} -p ${RHT_OCP4_DEV_PASSWORD} ${RHT_OCP4_MASTER_API}
+oc new-project ${RHT_OCP4_DEV_USER}-mysql-openshift
+oc new-app --template=mysql-persistent -p MYSQL_USER=user1 -p MYSQL_PASSWORD=mypa55 -p MYSQL_DATABASE=testdb -p MYSQL_ROOT_PASSWORD=r00tpa55 -p VOLUME_CAPACITY=10Gi
+oc status
+oc get pods
+oc describe pod mysql-1-zhvgf
+oc get svc
+oc describe  service mysql
+oc get pvc
+oc describe pvc/mysql
+oc port-forward mysql-1-zhvgf 3306:3306
+
+
+git checkout master
+
+oc login -u ${RHT_OCP4_DEV_USER} -p ${RHT_OCP4_DEV_PASSWORD} ${RHT_OCP4_MASTER_API}
+oc new-project ${RHT_OCP4_DEV_USER}-s2i
+oc new-app php:7.3 --name=php-helloworld https://github.com/pedrojperez27DO180-apps#s2i
+ --context-dir php-helloworld
+
+*****************Contenido run.sh********
+#!/bin/sh
+
+if [ -d "work" ]; then
+  sudo rm -fr work
+fi
+
+echo "Create database volume..."
+mkdir -p work/data
+sudo chcon -Rt container_file_t work
+podman unshare chown -R 27:27 work
+
+
+
+# TODO Add podman run for mysql image here
+
+podman run --name mysql -d -p 30306:3306 -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=r00tpa55 registry.redhat.io/rhel8/mysql-80:1
+
+sleep 9
+
+# TODO Add podman run for todonodejs image here
+podman run --name todoapi -d -p 30080:30080 -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items do180/todonodejs
+
+********************************************************************
+
+
+ 
+
